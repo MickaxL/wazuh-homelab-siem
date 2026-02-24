@@ -1,140 +1,98 @@
 # wazuh-homelab-siem
 
-# wazuh-homelab-siem — Full Setup Commands Log
+## Setup Summary
 
-This file contains ALL commands used to setup the project from scratch.
+### 1. Install WSL (Windows 11)
 
-============================================================
-1️⃣ WINDOWS 11 — INSTALL WSL
-============================================================
-
-PowerShell (Admin):
-
+```powershell
 wsl --install -d Ubuntu
+```
 
+---
 
-============================================================
-2️⃣ WSL — INSTALL TOOLS
-============================================================
+### 2. Install required tools in WSL
 
+```bash
 sudo apt update
 sudo apt install -y ansible git openssh-client
-
+```
 
 Verification:
 
+```bash
 ansible --version
 git --version
 ssh -V
+```
 
+---
 
-============================================================
-3️⃣ NETWORK TEST FROM WSL
-============================================================
+### 3. Network connectivity test
 
+```bash
 ping -c 2 192.168.160.128
 ping -c 2 192.168.160.129
+```
 
+---
 
-============================================================
-4️⃣ ON BOTH UBUNTU VMs (CLIENT + SERVER)
-============================================================
+### 4. Enable SSH on both Ubuntu VMs
 
+```bash
 sudo apt update
 sudo apt install -y openssh-server
 sudo systemctl enable --now ssh
+```
 
+---
 
-============================================================
-5️⃣ GENERATE SSH KEY (WSL)
-============================================================
+### 5. Generate SSH key (WSL)
 
+```bash
 ssh-keygen -t ed25519 -C "ansible-wazuh"
+```
 
-# Save path default:
-/home/user/.ssh/id_ed25519
+---
 
-# No passphrase for homelab
+### 6. Copy SSH key
 
-
-============================================================
-6️⃣ COPY SSH KEY TO SERVER
-============================================================
-
+```bash
 ssh-copy-id user@192.168.160.129
-
-
-============================================================
-7️⃣ FIX CLIENT SSH ISSUE (192.168.160.128)
-============================================================
-
-# On client VM:
-
-sudo nano /etc/ssh/sshd_config
-
-# Set:
-PasswordAuthentication yes
-
-sudo systemctl restart ssh
-
-# Change password
-passwd
-
-
-# From WSL:
 ssh-copy-id ubuntu@192.168.160.128
+```
 
+---
 
-============================================================
-8️⃣ TEST SSH ACCESS
-============================================================
+### 7. Inventory configuration
 
-ssh user@192.168.160.129
-ssh ubuntu@192.168.160.128
-
-
-============================================================
-9️⃣ INVENTORY FILE
-============================================================
-
-Create inventory.ini:
-
+```ini
 [wazuh_server]
 192.168.160.129 ansible_user=user
 
 [wazuh_clients]
 192.168.160.128 ansible_user=ubuntu
+```
 
-[all:vars]
-ansible_ssh_private_key_file=~/.ssh/id_ed25519
+---
 
+### 8. Test Ansible connectivity
 
-============================================================
-🔟 TEST ANSIBLE CONNECTIVITY
-============================================================
-
+```bash
 ansible all -i inventory.ini -m ping
+```
 
-result ; 
 Result:
 
-```text
-192.168.160.128 | SUCCESS => {
-    "changed": false,
-    "ping": "pong"
-}
-
-192.168.160.129 | SUCCESS => {
-    "changed": false,
-    "ping": "pong"
-}
 ```
-============================================================
-CURRENT STATUS
-============================================================
+192.168.160.128 → SUCCESS (pong)
+192.168.160.129 → SUCCESS (pong)
+```
 
-✔ WSL installed
-✔ Ansible installed
-✔ SSH working
-✔ Inventory configured
-✔ Ansible ping OK on both machines
+---
+
+## Current Status
+
+- WSL installed
+- Ansible configured
+- SSH key authentication working
+- Both nodes reachable via Ansible
