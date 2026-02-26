@@ -11,3 +11,7 @@ wazuh-homelab-siem/
    └─ wazuh_agent/
       └─ tasks/main.yml
 ```
+
+
+WIP : Lack of memories to set up dashboard
+      
